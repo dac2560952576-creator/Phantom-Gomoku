@@ -1,29 +1,42 @@
-# Phantom Gomoku Skeleton
+# 幻格五子棋 (Phantom Gomoku)
 
-This project is a VSCode-friendly SFML skeleton for a Gomoku course project.
+本项目为《游戏程序设计》课程设计作品。这是一款基于 C++ 和 SFML 开发的五子棋游戏。在经典五子棋规则的基础上，加入了“幻格（随机障碍物）”机制，提供了更丰富的策略深度，同时支持本地双人游玩以及网络联机对战。
 
-## Included
+## 游戏特色 🎮
 
-- SFML window loop
-- 15x15 board rendering
-- mouse click placement
-- turn switching
-- restart with `R`
-- obstacle mode toggle with `O`
-- basic five-in-a-row winner detection
+- **双重玩法模式**：
+  - **经典模式**：标准 15x15 棋盘五子棋对局。
+  - **幻格模式**：棋盘初始化时随机构建障碍网格，障碍物处不可落子，极大改变传统五子棋的固定定式与套路，增加对战趣味性。
+- **网络联机对战**：底层集成 Socket 客户端与服务端网络通信模块，支持局域网网络通信对战。
+- **视听多媒体体验**：通过 SFML 渲染音频与图像，集成背景音乐、点击音效、胜负音效与像素风美术 UI 界面。
 
-## Recommended VSCode setup
+## 编译与构建说明 🛠️
 
-1. Install the `C/C++` extension.
-2. Install the `CMake Tools` extension.
-3. Make sure SFML 2.6 is installed and discoverable by CMake.
-4. Open this folder in VSCode.
-5. Run `CMake: Configure`.
-6. Run `CMake: Build`.
-7. Launch the generated executable from VSCode or the build folder.
+推荐使用 **Visual Studio Code** 配合 **CMake** 进行编译与运行：
 
-## Notes
+1. 在 VS Code 中安装 `C/C++` 和 `CMake Tools` 插件。
+2. 确保系统配置好支持 C++17 或以上标准的编译器（例如 Windows 下的 MinGW-w64 g++ 或 MSVC）。
+3. 项目依赖 **SFML** 游戏框架（项目代码已考虑新版本 SFML 的事件机制差异）。
+4. 在 VS Code 中打开本文件夹。
+5. 执行 CMake 配置：`CMake: Configure`。
+6. 点击编译：`CMake: Build`。
+7. 编译完成后，在 `./build` 文件夹（或根据 VS Code CMake 配置的输出目录）找到并运行生成的 `phantom_gomoku.exe`。
 
-- The game status is shown in the window title to avoid extra font assets.
-- Press `O` to switch between classic mode and obstacle mode.
-- This is intentionally a small foundation so you can keep adding menu, AI, hints, replay, and polish later.
+## 操作说明 ⌨️
+
+- **鼠标左键**：在棋盘空网格处点击进行落子。
+- **键盘 `O` 键**：切换 经典模式/幻格模式（会提示并重置当前对局）。
+- **键盘 `R` 键**：清空棋盘并重新开始对局。
+
+## 项目文件结构 📁
+
+- `src/`：C++ 源代码存放目录
+  - `Game.cpp / hpp`：游戏主循环及渲染控制逻辑
+  - `Board.cpp / hpp`：棋盘状态管理、落子位置与五子连珠判定逻辑
+  - `NetworkServer.cpp / hpp`及`NetworkClient.cpp / hpp`：网络对战通信与数据封包解包
+- `assets/`：静态资源目录（精灵图、UI 设计图、字体及音效音乐文件）
+- `build/`：CMake 生成与构建目录（存放生成的 exe 文件）
+- `CMakeLists.txt`：项目的 CMake 配置文件
+
+---
+*Created for 课程设计.*
