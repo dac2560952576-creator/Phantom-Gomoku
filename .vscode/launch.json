@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch phantom_gomoku",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/phantom_gomoku.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "CMake Build",
+      "console": "integratedTerminal",
+      "stopAtEntry": false
+    }
+  ]
+}

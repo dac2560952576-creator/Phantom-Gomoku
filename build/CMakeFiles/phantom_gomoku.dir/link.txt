@@ -1,0 +1,3 @@
+D:\360Downloads\Software\winlibs-x86_64-posix-seh-gcc-14.2.0-mingw-w64ucrt-12.0.0-r2\mingw64\bin\cmake.exe -E rm -f CMakeFiles\phantom_gomoku.dir/objects.a
+D:\360Downloads\Software\winlibs-x86_64-posix-seh-gcc-14.2.0-mingw-w64ucrt-12.0.0-r2\mingw64\bin\ar.exe qc CMakeFiles\phantom_gomoku.dir/objects.a @CMakeFiles\phantom_gomoku.dir\objects1.rsp
+D:\360Downloads\Software\winlibs-x86_64-posix-seh-gcc-14.2.0-mingw-w64ucrt-12.0.0-r2\mingw64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\phantom_gomoku.dir/objects.a -Wl,--no-whole-archive -o phantom_gomoku.exe -Wl,--out-implib,libphantom_gomoku.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\phantom_gomoku.dir\linkLibs.rsp

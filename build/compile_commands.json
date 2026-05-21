@@ -1,0 +1,32 @@
+[
+{
+  "directory": "C:/Users/ROG/Desktop/game/build",
+  "command": "D:\\360Downloads\\Software\\winlibs-x86_64-posix-seh-gcc-14.2.0-mingw-w64ucrt-12.0.0-r2\\mingw64\\bin\\g++.exe  @CMakeFiles/phantom_gomoku.dir/includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -finput-charset=UTF-8 -fexec-charset=UTF-8 -o CMakeFiles\\phantom_gomoku.dir\\src\\main.cpp.obj -c C:\\Users\\ROG\\Desktop\\game\\src\\main.cpp",
+  "file": "C:/Users/ROG/Desktop/game/src/main.cpp",
+  "output": "CMakeFiles/phantom_gomoku.dir/src/main.cpp.obj"
+},
+{
+  "directory": "C:/Users/ROG/Desktop/game/build",
+  "command": "D:\\360Downloads\\Software\\winlibs-x86_64-posix-seh-gcc-14.2.0-mingw-w64ucrt-12.0.0-r2\\mingw64\\bin\\g++.exe  @CMakeFiles/phantom_gomoku.dir/includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -finput-charset=UTF-8 -fexec-charset=UTF-8 -o CMakeFiles\\phantom_gomoku.dir\\src\\Game.cpp.obj -c C:\\Users\\ROG\\Desktop\\game\\src\\Game.cpp",
+  "file": "C:/Users/ROG/Desktop/game/src/Game.cpp",
+  "output": "CMakeFiles/phantom_gomoku.dir/src/Game.cpp.obj"
+},
+{
+  "directory": "C:/Users/ROG/Desktop/game/build",
+  "command": "D:\\360Downloads\\Software\\winlibs-x86_64-posix-seh-gcc-14.2.0-mingw-w64ucrt-12.0.0-r2\\mingw64\\bin\\g++.exe  @CMakeFiles/phantom_gomoku.dir/includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -finput-charset=UTF-8 -fexec-charset=UTF-8 -o CMakeFiles\\phantom_gomoku.dir\\src\\Board.cpp.obj -c C:\\Users\\ROG\\Desktop\\game\\src\\Board.cpp",
+  "file": "C:/Users/ROG/Desktop/game/src/Board.cpp",
+  "output": "CMakeFiles/phantom_gomoku.dir/src/Board.cpp.obj"
+},
+{
+  "directory": "C:/Users/ROG/Desktop/game/build",
+  "command": "D:\\360Downloads\\Software\\winlibs-x86_64-posix-seh-gcc-14.2.0-mingw-w64ucrt-12.0.0-r2\\mingw64\\bin\\g++.exe  @CMakeFiles/phantom_gomoku.dir/includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -finput-charset=UTF-8 -fexec-charset=UTF-8 -o CMakeFiles\\phantom_gomoku.dir\\src\\NetworkServer.cpp.obj -c C:\\Users\\ROG\\Desktop\\game\\src\\NetworkServer.cpp",
+  "file": "C:/Users/ROG/Desktop/game/src/NetworkServer.cpp",
+  "output": "CMakeFiles/phantom_gomoku.dir/src/NetworkServer.cpp.obj"
+},
+{
+  "directory": "C:/Users/ROG/Desktop/game/build",
+  "command": "D:\\360Downloads\\Software\\winlibs-x86_64-posix-seh-gcc-14.2.0-mingw-w64ucrt-12.0.0-r2\\mingw64\\bin\\g++.exe  @CMakeFiles/phantom_gomoku.dir/includes_CXX.rsp -g -std=c++17 -Wall -Wextra -Wpedantic -finput-charset=UTF-8 -fexec-charset=UTF-8 -o CMakeFiles\\phantom_gomoku.dir\\src\\NetworkClient.cpp.obj -c C:\\Users\\ROG\\Desktop\\game\\src\\NetworkClient.cpp",
+  "file": "C:/Users/ROG/Desktop/game/src/NetworkClient.cpp",
+  "output": "CMakeFiles/phantom_gomoku.dir/src/NetworkClient.cpp.obj"
+}
+]
