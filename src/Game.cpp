@@ -13199,15 +13199,6 @@ void Game::triggerCardEvent() {
     drawnCards_[1] = pool[1];
     drawnCards_[2] = pool[2];
 
-    // ====== TEMP: 测试用 — 第一轮事件强制出现愚者 ======
-    {
-        static int eventCount = 0;
-        ++eventCount;
-        if (eventCount == 1) {
-            drawnCards_[1] = CardType::Fool;
-        }
-    }
-    // ====== END TEMP ======
     selectedCardIndex_ = -1;
     chosenCardIdx_ = -1;
     cardEventState_ = CardEventState::Omen;
