@@ -3174,6 +3174,7 @@ void Game::startMatch(Board::Mode mode, bool aiEnabled, AIDifficulty difficulty)
     foolParticles_.clear();
     foolStarAlpha_ = 0.0f;
     towerAnimPending_ = false;
+    towerRebirthAnimPending_ = false;
     towerRegenTurns_ = 0;
     towerParticles_.clear();
     towerSavedObstacles_.clear();
@@ -3478,6 +3479,7 @@ void Game::restart() {
     foolParticles_.clear();
     foolStarAlpha_ = 0.0f;
     towerAnimPending_ = false;
+    towerRebirthAnimPending_ = false;
     towerRegenTurns_ = 0;
     towerParticles_.clear();
     towerSavedObstacles_.clear();
@@ -3910,6 +3912,8 @@ void Game::maybeMakeAiMove() {
         --towerRegenTurns_;
         if (towerRegenTurns_ == 0) {
             board_.generateRandomObstacles(towerObstacleCount_);
+            towerRebirthAnimPending_ = true;
+            towerRebirthClock_.restart();
             speechText_ = "障碍物从天而降！高塔重建完毕。";
             speechClock_.restart();
         }
@@ -3983,6 +3987,11 @@ void Game::updateHardModeObstacles() {
     // Fool: skip one obstacle event
     if (foolActive_) {
         foolActive_ = false;
+        return;
+    }
+
+    // Tower: obstacles cleared, waiting for delayed regeneration — don't interfere
+    if (towerRegenTurns_ > 0) {
         return;
     }
 
@@ -8980,6 +8989,75 @@ void Game::drawGameScene() {
         }
     }
 
+    // Tower rebirth: golden energy motes rising from regenerated obstacles
+    if (towerRebirthAnimPending_) {
+        const float rbElapsed = towerRebirthClock_.getElapsedTime().asSeconds();
+        constexpr float kRebirthDuration = 1.20f;
+        static thread_local std::mt19937 rbRng(std::random_device{}());
+
+        if (rbElapsed < kRebirthDuration) {
+            const float t = rbElapsed / kRebirthDuration;
+            const auto pa = static_cast<std::uint8_t>((1.0f - t) * 180.0f);
+
+            // Screen-wide gentle amber glow
+            sf::RectangleShape glow({1280.0f, 820.0f});
+            glow.setPosition({0.0f, 0.0f});
+            glow.setFillColor(sf::Color(255, 210, 80, static_cast<std::uint8_t>(std::sin(t * 3.14159f) * 40.0f)));
+            window_.draw(glow);
+
+            // Golden motes from obstacle positions
+            for (const auto& op : board_.obstaclePositions()) {
+                const auto opx = board_.cellToPixel(op.x, op.y);
+                const float moteY = static_cast<float>(opx.y) - (1.0f - t) * 60.0f;
+                const float moteAlpha = t < 0.3f ? t / 0.3f : (1.0f - t) / 0.7f;
+                const auto ma = static_cast<std::uint8_t>(moteAlpha * 220.0f);
+
+                // Rising golden orb
+                sf::CircleShape mote(4.0f + t * 6.0f);
+                mote.setOrigin({mote.getRadius(), mote.getRadius()});
+                mote.setPosition({static_cast<float>(opx.x), moteY});
+                mote.setFillColor(sf::Color(255, 220, 60, ma));
+                window_.draw(mote);
+
+                // Halo ring
+                sf::CircleShape halo(8.0f + t * 14.0f);
+                halo.setOrigin({halo.getRadius(), halo.getRadius()});
+                halo.setPosition({static_cast<float>(opx.x), moteY});
+                halo.setFillColor(sf::Color::Transparent);
+                halo.setOutlineColor(sf::Color(255, 200, 40, static_cast<std::uint8_t>(ma * 0.4f)));
+                halo.setOutlineThickness(1.5f);
+                window_.draw(halo);
+            }
+
+            // Floating sparkle dust
+            static std::vector<sf::Vector2f> rbSparks;
+            static float rbSparkTimer = 0.0f;
+            rbSparkTimer += 1.0f / 60.0f;
+            if (rbSparkTimer > 0.05f && rbSparks.size() < 60) {
+                rbSparkTimer = 0.0f;
+                const float angle = static_cast<float>(rbRng()) / rbRng.max() * 2.0f * 3.14159f;
+                const float dist = static_cast<float>(std::uniform_real_distribution<>(40.0, 200.0)(rbRng));
+                const auto bc = board_.cellToPixel(7, 7);
+                rbSparks.push_back({static_cast<float>(bc.x + std::cos(angle) * dist),
+                                    static_cast<float>(bc.y + std::sin(angle) * dist - 40.0f * (1.0f - t))});
+            }
+            for (auto& sp : rbSparks) {
+                sp.y -= 40.0f * (1.0f / 60.0f);
+                sf::CircleShape spark(1.5f);
+                spark.setOrigin({1.5f, 1.5f});
+                spark.setPosition(sp);
+                spark.setFillColor(sf::Color(255, 240, 150, pa));
+                window_.draw(spark);
+            }
+            rbSparks.erase(
+                std::remove_if(rbSparks.begin(), rbSparks.end(),
+                    [](const sf::Vector2f& sp) { return sp.y < -20.0f; }),
+                rbSparks.end());
+        } else {
+            towerRebirthAnimPending_ = false;
+        }
+    }
+
     // Wheel of Fortune card: fate roulette animation
     if (wheelFortuneAnimPending_) {
         const auto boardCenter = board_.cellToPixel(7, 7);
@@ -13173,6 +13251,16 @@ void Game::triggerCardEvent() {
     drawnCards_[0] = pool[0];
     drawnCards_[1] = pool[1];
     drawnCards_[2] = pool[2];
+
+    // ====== TEMP: 测试用 — 第一轮事件强制出现高塔 ======
+    {
+        static int eventCount = 0;
+        ++eventCount;
+        if (eventCount == 1) {
+            drawnCards_[1] = CardType::Tower;
+        }
+    }
+    // ====== END TEMP ======
 
     selectedCardIndex_ = -1;
     chosenCardIdx_ = -1;
