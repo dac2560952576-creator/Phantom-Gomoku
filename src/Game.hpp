@@ -373,6 +373,7 @@ private:
     int hierophantRemaining_ = 0;
     int temperanceRemaining_ = 0;
     int strengthProtectionRemaining_ = 0;
+    int towerRegenTurns_ = 0;
     sf::Vector2i strengthProtectedPos_{-1, -1};
     bool moonActive_ = false;
     sf::Vector2i starHighlightPos_{-1, -1};

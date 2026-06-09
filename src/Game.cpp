@@ -2408,7 +2408,6 @@ void Game::update() {
         const float twElapsed = towerAnimClock_.getElapsedTime().asSeconds();
         constexpr float kLightningEnd = 0.60f;
         constexpr float kCollapseEnd = 1.50f;
-        constexpr float kRebirthEnd = 2.50f;
         static thread_local std::mt19937 twRng(std::random_device{}());
 
         if (twElapsed < kLightningEnd) {
@@ -2427,11 +2426,6 @@ void Game::update() {
             towerRubbleAlpha_ = t;
             towerRebirthAlpha_ = 0.0f;
             shakeIntensity_ = (1.0f - t) * 6.0f + 1.0f;
-            // Clear obstacles at 55% through phase
-            if (!towerObstaclesCleared_ && t > 0.55f) {
-                towerObstaclesCleared_ = true;
-                board_.clearObstacles();
-            }
             // Rubble particles from saved obstacle positions
             if (towerObstaclesCleared_ && towerParticles_.size() < 100) {
                 for (const auto& so : towerSavedObstacles_) {
@@ -2453,39 +2447,9 @@ void Game::update() {
                     }
                 }
             }
-        } else if (twElapsed < kRebirthEnd) {
-            // Phase 3: New obstacles rise from the ground
-            const float t = (twElapsed - kCollapseEnd) / (kRebirthEnd - kCollapseEnd);
-            towerFlashAlpha_ = 0.0f;
-            towerLightningAlpha_ = 0.0f;
-            towerRubbleAlpha_ = 1.0f - t;
-            towerRebirthAlpha_ = t;
-            shakeIntensity_ = (1.0f - t) * 1.0f;
-            // Generate new obstacles at 20% through phase
-            if (!towerObstaclesRegenerated_ && t > 0.20f) {
-                towerObstaclesRegenerated_ = true;
-                board_.generateRandomObstacles(towerObstacleCount_);
-            }
-            // Golden energy motes from new obstacle positions
-            if (towerObstaclesRegenerated_ && towerParticles_.size() < 150) {
-                for (const auto& op : board_.obstaclePositions()) {
-                    if (towerParticles_.size() >= 150) break;
-                    const auto opx = board_.cellToPixel(op.x, op.y);
-                    for (int i = 0; i < 1; ++i) {
-                        TowerParticle tp;
-                        tp.pos = {static_cast<float>(opx.x + std::uniform_real_distribution<>(-6.0, 6.0)(twRng)),
-                                  static_cast<float>(opx.y + std::uniform_real_distribution<>(-6.0, 6.0)(twRng))};
-                        tp.vel = {static_cast<float>(std::uniform_real_distribution<>(-15.0, 15.0)(twRng)),
-                                  static_cast<float>(std::uniform_real_distribution<>(-40.0, -10.0)(twRng))};
-                        tp.life = 0.0f;
-                        tp.maxLife = static_cast<float>(std::uniform_real_distribution<>(0.4, 0.8)(twRng));
-                        tp.scale = static_cast<float>(std::uniform_real_distribution<>(0.3, 1.0)(twRng));
-                        tp.isRubble = false;
-                        towerParticles_.push_back(tp);
-                    }
-                }
-            }
         } else {
+            // Animation done — obstacles already cleared in applyCardEffect.
+            // Rebirth happens via towerRegenTurns_ in the turn counter.
             towerAnimPending_ = false;
             towerFlashAlpha_ = 0.0f;
             towerLightningAlpha_ = 0.0f;
@@ -3210,6 +3174,7 @@ void Game::startMatch(Board::Mode mode, bool aiEnabled, AIDifficulty difficulty)
     foolParticles_.clear();
     foolStarAlpha_ = 0.0f;
     towerAnimPending_ = false;
+    towerRegenTurns_ = 0;
     towerParticles_.clear();
     towerSavedObstacles_.clear();
     towerObstaclesCleared_ = false;
@@ -3513,6 +3478,7 @@ void Game::restart() {
     foolParticles_.clear();
     foolStarAlpha_ = 0.0f;
     towerAnimPending_ = false;
+    towerRegenTurns_ = 0;
     towerParticles_.clear();
     towerSavedObstacles_.clear();
     towerObstaclesCleared_ = false;
@@ -3937,6 +3903,15 @@ void Game::maybeMakeAiMove() {
         if (strengthProtectionRemaining_ == 0) {
             board_.setStrengthPos(std::nullopt);
             strengthProtectedPos_ = {-1, -1};
+        }
+    }
+    // Tower: delayed obstacle regeneration
+    if (towerRegenTurns_ > 0) {
+        --towerRegenTurns_;
+        if (towerRegenTurns_ == 0) {
+            board_.generateRandomObstacles(towerObstacleCount_);
+            speechText_ = "障碍物从天而降！高塔重建完毕。";
+            speechClock_.restart();
         }
     }
 
@@ -13352,23 +13327,27 @@ void Game::applyCardEffect(CardType card) {
     }
 
     case CardType::Tower: {
-        // Deferred: lightning strikes, obstacles crumble, new ones rise
-        const int count = std::min(8, board_.obstacleCount());
-        towerObstacleCount_ = count;
+        // Lightning strikes — clear all obstacles immediately.
+        // New obstacles rise automatically after 3 turns.
+        towerObstacleCount_ = std::min(8, board_.obstacleCount());
         // Save obstacle positions for rubble animation
         towerSavedObstacles_.clear();
         for (const auto& op : board_.obstaclePositions()) {
             towerSavedObstacles_.push_back({static_cast<float>(op.x), static_cast<float>(op.y)});
         }
+        board_.clearObstacles();
+        towerRegenTurns_ = 3;
         towerAnimPending_ = true;
         towerAnimClock_.restart();
         towerFlashAlpha_ = 0.0f;
         towerLightningAlpha_ = 0.0f;
         towerRubbleAlpha_ = 0.0f;
         towerRebirthAlpha_ = 0.0f;
-        towerObstaclesCleared_ = false;
+        towerObstaclesCleared_ = true;   // already done above
         towerObstaclesRegenerated_ = false;
         towerParticles_.clear();
+        speechText_ = "天崩地裂！障碍物全部摧毁，3回合后重生...";
+        speechClock_.restart();
         break;
     }
 
