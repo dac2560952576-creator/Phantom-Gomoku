@@ -48,7 +48,6 @@ public:
     std::optional<sf::Vector2i> pixelToCell(sf::Vector2i pixel) const;
 
     void generateRandomObstacles(int count);
-    void spawnRandomObstacles(int count);
     void spawnSmartObstacles(int count);
     void removeOldestObstacles(int count);
     void clearObstacles();
@@ -58,15 +57,10 @@ public:
     void recordObstaclePlacements(const std::vector<sf::Vector2i>& positions);
     void clearExpiredObstacleAnimations();
     int totalPieceCount() const;
-    int pieceCount(Piece piece) const;
-    bool loadBoardTexture(const std::string& path);
 
     // Card effect operations
     void removePieceAt(int row, int col);
     void removeObstacleAt(int row, int col);
-    void placeObstacleAt(int row, int col);
-    void clearArea(int centerRow, int centerCol, int radius);
-    void swapPieces(int r1, int c1, int r2, int c2);
     std::vector<sf::Vector2i> findLongestChainCells(Piece piece) const;
     std::vector<sf::Vector2i> findAdjacentEmptyCells(Piece piece) const;
 

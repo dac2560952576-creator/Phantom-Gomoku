@@ -450,15 +450,6 @@ void Board::generateTextures() {
     }
 }
 
-bool Board::loadBoardTexture(const std::string& path) {
-    if (!woodTex_.loadFromFile(path)) {
-        return false;
-    }
-    woodTex_.setSmooth(false);
-    woodTex_.setRepeated(true);
-    return true;
-}
-
 bool Board::placePieceFromPixel(sf::Vector2i pixel, Piece piece) {
     const auto cell = pixelToCell(pixel);
     if (!cell.has_value()) {
@@ -666,32 +657,6 @@ void Board::generateRandomObstacles(int count) {
     }
 }
 
-void Board::spawnRandomObstacles(int count) {
-    std::vector<sf::Vector2i> emptyCells;
-    for (int row = 0; row < kBoardSize; ++row) {
-        for (int col = 0; col < kBoardSize; ++col) {
-            if (cells_[row][col] == Cell::Empty) {
-                emptyCells.push_back({row, col});
-            }
-        }
-    }
-
-    static thread_local std::mt19937 rng(std::random_device{}());
-    const int available = std::min({count, kMaxObstacles - obstacleCount(), static_cast<int>(emptyCells.size())});
-    std::vector<sf::Vector2i> newPositions;
-    for (int i = 0; i < available; ++i) {
-        const std::size_t idx = std::uniform_int_distribution<std::size_t>(0, emptyCells.size() - 1)(rng);
-        const auto pos = emptyCells[idx];
-        cells_[pos.x][pos.y] = Cell::Obstacle;
-        obstacleOrder_.push_back(pos);
-        newPositions.push_back(pos);
-        emptyCells.erase(emptyCells.begin() + static_cast<std::ptrdiff_t>(idx));
-    }
-    if (!newPositions.empty()) {
-        recordObstaclePlacements(newPositions);
-    }
-}
-
 void Board::removeOldestObstacles(int count) {
     const int actual = std::min(count, static_cast<int>(obstacleOrder_.size()));
     for (int i = 0; i < actual; ++i) {
@@ -853,17 +818,6 @@ void Board::spawnSmartObstacles(int count) {
     }
 }
 
-int Board::pieceCount(Piece piece) const {
-    const Cell target = piece == Piece::Black ? Cell::Black : Cell::White;
-    int count = 0;
-    for (const auto& row : cells_) {
-        for (const auto cell : row) {
-            if (cell == target) ++count;
-        }
-    }
-    return count;
-}
-
 void Board::removePieceAt(int row, int col) {
     if (isInside(row, col) && (cells_[row][col] == Cell::Black || cells_[row][col] == Cell::White)) {
         cells_[row][col] = Cell::Empty;
@@ -881,37 +835,6 @@ void Board::removeObstacleAt(int row, int col) {
             }
         }
     }
-}
-
-void Board::placeObstacleAt(int row, int col) {
-    if (isInside(row, col) && cells_[row][col] == Cell::Empty && obstacleCount() < kMaxObstacles) {
-        cells_[row][col] = Cell::Obstacle;
-        obstacleOrder_.push_back({row, col});
-        recordObstaclePlacements({{row, col}});
-    }
-}
-
-void Board::clearArea(int centerRow, int centerCol, int radius) {
-    for (int r = centerRow - radius; r <= centerRow + radius; ++r) {
-        for (int c = centerCol - radius; c <= centerCol + radius; ++c) {
-            if (isInside(r, c)) {
-                if (cells_[r][c] == Cell::Black || cells_[r][c] == Cell::White) {
-                    cells_[r][c] = Cell::Empty;
-                }
-            }
-        }
-    }
-}
-
-void Board::swapPieces(int r1, int c1, int r2, int c2) {
-    if (!isInside(r1, c1) || !isInside(r2, c2)) return;
-    const auto a = cells_[r1][c1];
-    const auto b = cells_[r2][c2];
-    if (a != Cell::Black && a != Cell::White) return;
-    if (b != Cell::Black && b != Cell::White) return;
-    if (a == b) return;
-    cells_[r1][c1] = b;
-    cells_[r2][c2] = a;
 }
 
 std::vector<sf::Vector2i> Board::findLongestChainCells(Piece piece) const {
