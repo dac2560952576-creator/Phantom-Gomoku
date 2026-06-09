@@ -3644,25 +3644,64 @@ void Game::tryPlacePiece(sf::Vector2i pixel) {
         }
     }
 
-    // Chariot: push opponent piece away if target cell is occupied
+    // Chariot: next move can push an opponent piece away by one cell.
+    // Must clear pending BEFORE placing the piece — the push consumes this move.
     if (chariotPending_) {
-        chariotPending_ = false;
         const auto chariotCell = board_.pixelToCell(pixel);
+
+        // Only triggers when clicking on an opponent's piece
         if (chariotCell.has_value() && board_.pieceAt(chariotCell->x, chariotCell->y) == nextTurn(currentTurn_)) {
-            constexpr int kPushDirs[8][2] = {{-1,-1},{-1,0},{-1,1},{0,-1},{0,1},{1,-1},{1,0},{1,1}};
-            bool found = false;
+            const int cr = chariotCell->x;
+            const int cc = chariotCell->y;
+
+            // Determine outward push direction (from board centre to the piece).
+            // This pushes the opponent piece toward the nearest board edge — natural outward shove.
+            const int dx = cr - 7;  // positive = toward bottom
+            const int dy = cc - 7;  // positive = toward right
+            int pushDr = (dx == 0) ? 0 : (dx > 0 ? 1 : -1);
+            int pushDc = (dy == 0) ? 0 : (dy > 0 ? 1 : -1);
+            // If the piece sits exactly on the centre (7,7), default push upward.
+            if (pushDr == 0 && pushDc == 0) { pushDr = -1; pushDc = 0; }
+
             sf::Vector2i dest;
-            for (const auto& d : kPushDirs) {
-                const int nr = chariotCell->x + d[0];
-                const int nc = chariotCell->y + d[1];
-                if (nr >= 0 && nr < Board::kBoardSize && nc >= 0 && nc < Board::kBoardSize &&
-                    board_.canPlaceAt(nr, nc)) {
-                    dest = {nr, nc};
-                    found = true;
-                    break;
+            bool found = false;
+
+            // First try the outward direction (most natural)
+            const int nr = cr + pushDr;
+            const int nc = cc + pushDc;
+            if (nr >= 0 && nr < Board::kBoardSize && nc >= 0 && nc < Board::kBoardSize &&
+                board_.canPlaceAt(nr, nc)) {
+                dest = {nr, nc};
+                found = true;
+            }
+
+            // Fallback: if outward cell blocked, spiral outward through all 8 dirs
+            if (!found) {
+                // Order by distance from the ideal (pushDr, pushDc) direction
+                constexpr int kPushDirs[8][2] = {{-1,-1},{-1,0},{-1,1},{0,-1},{0,1},{1,-1},{1,0},{1,1}};
+                // Start from the ideal direction's neighbours and expand
+                for (const auto& d : kPushDirs) {
+                    const int fr = cr + d[0];
+                    const int fc = cc + d[1];
+                    if (fr >= 0 && fr < Board::kBoardSize && fc >= 0 && fc < Board::kBoardSize &&
+                        board_.canPlaceAt(fr, fc)) {
+                        dest = {fr, fc};
+                        found = true;
+                        break;
+                    }
                 }
             }
-            if (!found) return; // can't push — no adjacent empty cell
+
+            if (!found) {
+                // Opponent piece is completely surrounded — can't push.
+                // Keep chariotPending_ so player can try again next turn.
+                speechText_ = "无法推离，对方棋子被围死了！";
+                speechClock_.restart();
+                return;
+            }
+
+            // Valid push — consume chariot now
+            chariotPending_ = false;
 
             // Defer: charge animation then push+place
             chariotPushSource_ = *chariotCell;
@@ -3681,7 +3720,10 @@ void Game::tryPlacePiece(sf::Vector2i pixel) {
             chariotParticles_.clear();
             return; // Defer board ops and player placement to animation
         }
-        // Target not opponent piece — chariot consumed without effect, fall through
+
+        // Player clicked an empty cell — keep chariotPending_ for next move.
+        // The normal placement flow below will handle this as a regular move.
+        // chariotPending_ stays true so the player can try again.
     }
 
     // Moon effect: offset this move by 1 random adjacent cell
@@ -13603,6 +13645,8 @@ void Game::applyCardEffect(CardType card) {
 
     case CardType::Chariot: {
         chariotPending_ = true;
+        speechText_ = "请点击对方棋子，将其推离1格！";
+        speechClock_.restart();
         break;
     }
 
