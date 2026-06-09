@@ -8,9 +8,19 @@
   "configurePresets": [
     {
       "name": "default",
-      "displayName": "Default MinGW + SFML 3",
-      "generator": "MinGW Makefiles",
+      "displayName": "Ninja + SFML 3 (Unicode safe)",
+      "generator": "Ninja",
       "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "SFML_DIR": "D:/360Downloads/Software/SFML-3.0.0/lib/cmake/SFML"
+      }
+    },
+    {
+      "name": "mingw",
+      "displayName": "MinGW Makefiles (legacy, no Unicode)",
+      "generator": "MinGW Makefiles",
+      "binaryDir": "${sourceDir}/build_mingw",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "SFML_DIR": "D:/360Downloads/Software/SFML-3.0.0/lib/cmake/SFML"
@@ -21,6 +31,10 @@
     {
       "name": "default",
       "configurePreset": "default"
+    },
+    {
+      "name": "mingw",
+      "configurePreset": "mingw"
     }
   ]
 }

@@ -1,42 +1,88 @@
-# 幻格五子棋 (Phantom Gomoku)
+# Phantom Gomoku（幻格五子棋）
 
-这是我第一次 Vibe Coding 的作品！这是一款基于 C++ 和 SFML 开发的五子棋游戏。在经典五子棋规则的基础上，加入了“幻格（随机障碍物）”机制，提供了更丰富的策略深度，同时支持本地双人游玩以及网络联机对战。
+基于 C++17 + SFML 3 的五子棋游戏，融合塔罗牌主题的卡牌事件系统，支持人机/双人对战与局域网联机。
 
-## 游戏特色 🎮
+## 特色
 
-- **双重玩法模式**：
-  - **经典模式**：标准 15x15 棋盘五子棋对局。
-  - **幻格模式**：棋盘初始化时随机构建障碍网格，障碍物处不可落子，极大改变传统五子棋的固定定式与套路，增加对战趣味性。
-- **网络联机对战**：底层集成 Socket 客户端与服务端网络通信模块，支持局域网网络通信对战。
-- **视听多媒体体验**：通过 SFML 渲染音频与图像，集成背景音乐、点击音效、胜负音效与像素风美术 UI 界面。
+- **22 张大阿尔卡纳卡牌事件** — 每张塔罗牌有独特的棋盘效果和动画演出，在对局中随机触发
+- **三种 AI 难度** — Easy / Medium / Hard，Hard 模式含动态障碍物管理
+- **经典 & 幻格双模式** — 经典 15×15 五子棋 + 带随机障碍物的幻格棋盘
+- **局域网联机** — TCP 房间制对战，支持自定义规则
+- **动态音乐** — 不同难度切换不同 BGM，含卡牌事件专属配乐
+- **像素字体** — 使用融合像素字体（简体中文）
 
-## 编译与构建说明 🛠️
+## 构建
 
-推荐使用 **Visual Studio Code** 配合 **CMake** 进行编译与运行：
+### 依赖
 
-1. 在 VS Code 中安装 `C/C++` 和 `CMake Tools` 插件。
-2. 确保系统配置好支持 C++17 或以上标准的编译器（例如 Windows 下的 MinGW-w64 g++ 或 MSVC）。
-3. 项目依赖 **SFML** 游戏框架（项目代码已考虑新版本 SFML 的事件机制差异）。
-4. 在 VS Code 中打开本文件夹。
-5. 执行 CMake 配置：`CMake: Configure`。
-6. 点击编译：`CMake: Build`。
-7. 编译完成后，在 `./build` 文件夹（或根据 VS Code CMake 配置的输出目录）找到并运行生成的 `phantom_gomoku.exe`。
+- **CMake** ≥ 3.20
+- **SFML** 3.0（System / Window / Graphics / Network / Audio）
+- **GCC**（MinGW-w64）或 MSVC
+- **Ninja**（推荐，MinGW Make 不支持中文路径）
 
-## 操作说明 ⌨️
+### 编译
 
-- **鼠标左键**：在棋盘空网格处点击进行落子。
-- **键盘 `O` 键**：切换 经典模式/幻格模式（会提示并重置当前对局）。
-- **键盘 `R` 键**：清空棋盘并重新开始对局。
+```bash
+cmake --preset default
+cmake --build --preset default
+```
 
-## 项目文件结构 📁
+`CMakePresets.json` 中的 `SFML_DIR` 需根据本地 SFML 安装路径修改。
 
-- `src/`：C++ 源代码存放目录
-  - `Game.cpp / hpp`：游戏主循环及渲染控制逻辑
-  - `Board.cpp / hpp`：棋盘状态管理、落子位置与五子连珠判定逻辑
-  - `NetworkServer.cpp / hpp`及`NetworkClient.cpp / hpp`：网络对战通信与数据封包解包
-- `assets/`：静态资源目录（精灵图、UI 设计图、字体及音效音乐文件）
-- `build/`：CMake 生成与构建目录（存放生成的 exe 文件）
-- `CMakeLists.txt`：项目的 CMake 配置文件
+## 操作
 
----
-*My first Vibe Coding project!*
+| 操作 | 按键/方式 |
+|------|-----------|
+| 落子 | 鼠标左键 |
+| 悔棋 | U / Backspace |
+| 重新开始 | R |
+| 切换棋盘模式 | O |
+| 切换人机/双人 | P |
+| 返回菜单 | M / Esc |
+| 查看规则 | 主菜单-规则说明 |
+
+## 项目结构
+
+```
+├── CMakeLists.txt          # 构建配置
+├── CMakePresets.json       # CMake 预设
+├── assets/                 # 图片、音频、字体素材
+└── src/
+    ├── main.cpp            # 入口
+    ├── Game.hpp/cpp        # 核心游戏逻辑与渲染
+    ├── Board.hpp/cpp       # 棋盘数据与绘制
+    ├── NetworkServer.hpp/cpp  # TCP 服务器
+    ├── NetworkClient.hpp/cpp  # TCP 客户端
+    └── NetworkCommon.hpp   # 网络协议定义
+```
+
+## 塔罗牌效果一览
+
+| 卡牌 | 效果 |
+|------|------|
+| Fool（愚者） | 随机放置一颗幸运之星棋子 |
+| Magician（魔术师） | 镜像复制棋子到对称位置 |
+| High Priestess（女祭司） | 十字圣所，清除十字形区域棋子 |
+| Empress（女皇） | 藤蔓生长，延伸至相邻空位 |
+| Emperor（皇帝） | 金色放逐障碍物 |
+| Hierophant（教皇） | 边界封锁，N 回合禁止落子边界区 |
+| Lovers（恋人） | 交换两颗棋子位置 |
+| Chariot（战车） | 推挤棋子沿方向移动并落子 |
+| Strength（力量） | 保护棋子不被移除 |
+| Hermit（隐士） | 清除 N 颗棋子 |
+| Wheel of Fortune（命运之轮） | 重洗障碍物位置 |
+| Justice（正义） | 移除双方各一颗棋子 |
+| Hanged Man（倒吊人） | 牺牲己方一颗，清除对方两颗 |
+| Death（死神） | 十字扩散清除周围棋子 |
+| Temperance（节制） | 和谐回合，双方可在对方棋子旁落子 |
+| Devil（恶魔） | 清除单颗棋子 |
+| Tower（高塔） | 清除全部障碍物后再生 |
+| Star（星星） | 高亮最佳落子位置 |
+| Moon（月亮） | 隐藏一颗棋子（迷雾） |
+| Sun（太阳） | 清除 3×3 区域 |
+| Judgement（审判） | 清除全部障碍物 |
+| World（世界） | 曼荼罗封印动画 |
+
+## 许可
+
+课程设计项目，仅供学习参考。

@@ -19,7 +19,7 @@ Game::Game()
 
     // Load and start background music
     for (const auto* prefix : {"assets/", "../assets/"}) {
-        const std::string musicPath = std::string(prefix) + "A Great Journey - Overworld.wav";
+        const std::string musicPath = std::string(prefix) + "A Great Journey - Overworld (V0).mp3";
         if (std::filesystem::exists(musicPath)) {
             if (bgMusic_.openFromFile(musicPath)) {
                 bgMusic_.setVolume(45.0f);
@@ -46,9 +46,9 @@ Game::Game()
                     }
                 }
             };
-            tryLoad(easyMusic_, "Red Leaf Town - rest area.wav", 50.0f);
-            tryLoad(mediumMusic_, "The Merchant - Shop.wav", 50.0f);
-            tryLoad(hardMusic_, "The Beast's Lair - Boss Fight.wav", 55.0f);
+            tryLoad(easyMusic_, "Red Leaf Town - rest area (V0).mp3", 50.0f);
+            tryLoad(mediumMusic_, "The Merchant - Shop (V0).mp3", 50.0f);
+            tryLoad(hardMusic_, "The Beast's Lair - Boss Fight (V0).mp3", 55.0f);
             if (found) break;
         }
     }
@@ -75,7 +75,7 @@ Game::Game()
 
     // Load button click sound
     for (const auto* prefix : {"assets/", "../assets/"}) {
-        const std::string sfxPath = std::string(prefix) + "UI_button02.wav";
+        const std::string sfxPath = std::string(prefix) + "UI_button02 (V0).mp3";
         if (std::filesystem::exists(sfxPath)) {
             if (btnSoundBuffer_.loadFromFile(sfxPath)) {
                 btnSound_.emplace(btnSoundBuffer_);
@@ -87,8 +87,8 @@ Game::Game()
 
     // Load win/lose sounds
     for (const auto* prefix : {"assets/", "../assets/"}) {
-        const std::string winPath = std::string(prefix) + "Win vol. 1.wav";
-        const std::string losePath = std::string(prefix) + "Lose vol. 1.wav";
+        const std::string winPath = std::string(prefix) + "Win vol. 1 (V0).mp3";
+        const std::string losePath = std::string(prefix) + "Lose vol. 1 (V0).mp3";
         if (std::filesystem::exists(winPath) && winSoundBuffer_.loadFromFile(winPath)) {
             winSound_.emplace(winSoundBuffer_);
             winSound_->setVolume(100.0f);

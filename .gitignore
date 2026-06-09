@@ -1,2 +1,8 @@
-/.claude
-/策划文档.docx
+/.claude/
+/build/
+/build_release/
+/game/
+*.exe
+*.obj
+*.o
+*.a

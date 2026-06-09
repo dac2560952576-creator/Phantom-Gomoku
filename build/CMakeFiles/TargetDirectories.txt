@@ -1,3 +1,0 @@
-C:/Users/ROG/Desktop/game/build/CMakeFiles/phantom_gomoku.dir
-C:/Users/ROG/Desktop/game/build/CMakeFiles/edit_cache.dir
-C:/Users/ROG/Desktop/game/build/CMakeFiles/rebuild_cache.dir
